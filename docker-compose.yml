@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  nii_redis:
+    image: redis
+    ports:
+      - '6379:6379'
+
+  nii_rabbitmq:
+    image: rabbitmq
+    ports:
+      - '5672:5672'
+
+  nii_celery_beat:
+    build: .
+    command: 'celery -A NII_Django beat -l DEBUG'
+    env_file:
+      - '.env'
+    volumes:
+      - '.:/app'
+
+  nii_celery_worker:
+    build: .
+    command: 'celery -A NII_Django worker -l DEBUG'
+    env_file:
+      - '.env'
+    volumes:
+      - '.:/app'
+
+  nii_backend:
+    build: .
+    command:  python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - '.env'
+    volumes:
+      - '.:/app'
+    ports:
+      - '8000:8000'
